@@ -8,8 +8,12 @@ router.get('/', (req, res, next) => {
   // res.sendfile('public/index.html');
 });
 
+router.get('/user/:id', (req, res, next) => {
+  res.send("Hello there!");
+});
+
 /*
-router.get('/stocks', function(req, res) {
+router.get('/stocks', (req, res) => {
   var promise = finance.stocks();
   promise.then(function(obj) {
     console.log('Sending MarketView JSON back...');
@@ -17,7 +21,7 @@ router.get('/stocks', function(req, res) {
   });
 });
 
-router.get('/historical', function(req, res) {    
+router.get('/historical', (req, res) => {
   var promise = finance.historical();
     promise.then(function(obj) {
     console.log('Sending Historical JSON back...');
@@ -25,4 +29,5 @@ router.get('/historical', function(req, res) {
   });
 });
 */
+
 module.exports = router;
