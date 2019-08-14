@@ -2,22 +2,29 @@
 
 const CronJob = require('cron').CronJob;
 
-var finance = require('./modules/stocks');
-const log = require('./logger');
+const finance = require('./modules/stocks');
+//var notify = require('./notifications');
+const log = require('./utils/logger');
 
-module.exports.dailyCloseNotify = function() {
+const dailyCloseNotify = () => {
   //cronTime: '00 45 16 * * 1-5',
   const job = new CronJob('*/15 * * * * *',
     (onComplete) => {
       log.info('Running smsStocksInfo()');
 
-      var promise = finance.basicStocksInfo();
-      promise.then(function(obj) {
-        var todaysPosition = "";
+      var promise = finance.getDailyInfo();
+      promise.then((obj) => {
+        log.info(obj);
+        // var todaysPosition = "";
+        // obj.data.forEach(function(val, key) {
+        //   todaysPosition = todaysPosition
+        //     + val.symbol + ": " + val.changeInPercent + " (" + val.changeInValue + ")\n"
+        //     + 'P&L: ' + ((val.position/val.amountInvested) * 100).toFixed(2) // THIS IS A STRING
+        //     + '% (' + val.position + " " + val.currency + ')\n\n';
+        // });
 
-        obj.data.forEach(function(val, key) {
-          console.log("iterate and make use of it here")
-        });
+        // todaysPosition = todaysPosition + "Total P&L: " + obj.totalPL;
+        // notify.pushSMS(todaysPosition);
 
         onComplete();
       });
@@ -29,4 +36,8 @@ module.exports.dailyCloseNotify = function() {
     true,
     'America/Toronto'
   );
+};
+
+module.exports = {
+  dailyCloseNotify
 };

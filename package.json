@@ -13,6 +13,7 @@
     "bunyan-prettystream": "^0.1.3",
     "cron": "^1.7.1",
     "express": "^4.17.1",
+    "mongodb": "^3.3.0-beta2",
     "q": "^1.5.1",
     "request": "^2.88.0"
   }

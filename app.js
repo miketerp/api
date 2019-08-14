@@ -1,22 +1,23 @@
+"use strict";
+
 const express = require('express');
 const app = express();
 
-const log = require('./logger');
+const log = require('./utils/logger');
 const routes = require('./route');
 const cron = require('./cron');
-
-const port = process.env.DEV_PORT || 80;
+const Meetup = require('./modules/Meetup');
 
 app.use(express.static(__dirname + '/public'));
 
 app.use((req, res, next) => {
-  var ip = req.headers['x-forwarded-for'] 
+  let ip = req.headers['x-forwarded-for'] 
     || req.connection.remoteAddress 
     || req.socket.remoteAddress 
     || req.connection.socket.remoteAddress;
-  var queryParams = req.query;
+  let queryParams = req.query;
 
-  var logStream = '\n' + new Date() + ' | '  + ip + ' | /' + req.method.toString() + ' | ' + req.path;
+  let logStream = `\n ${new Date()} | /${req.method.toString()} | ${ip} | ${req.path}`;
   log.info(logStream);
 
   //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
@@ -28,10 +29,13 @@ app.use((req, res, next) => {
   next();
 });
 
-var server = app.listen(port, () => {
-  var host = server.address().address;
-  var port = server.address().port;
-  log.info('App is listening at http://%s:%s', host, port);
+const port = process.env.DEV_PORT || 80;
+
+let server = app.listen(port, () => {
+  let host = server.address().address;
+  let port = server.address().port;
+  
+  log.info(`App is listening at http://${host}:${port}`);
 });
 
 log.info("Starting CronJob");

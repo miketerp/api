@@ -1,10 +1,12 @@
+"use strict";
+
 const bunyan = require('bunyan');
 const PrettyStream = require('bunyan-prettystream');
 
 const prettyStdOut = new PrettyStream();
 prettyStdOut.pipe(process.stdout);
 
-var log = bunyan.createLogger({
+const log = bunyan.createLogger({
   name: 'gcp-api',
   streams: [{
     level: 'debug',
