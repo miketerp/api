@@ -1,15 +1,26 @@
 "use strict";
 
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const log = require('./utils/logger');
+const weather = require('./modules/weather');
 
 router.get('/', (req, res, next) => {
   res.send('Hello World!');
   // res.sendfile('public/index.html');
 });
 
-router.get('/user/:id', (req, res, next) => {
-  res.send("Hello there!");
+// router.get('/user/:id', (req, res, next) => {
+//   res.send("Hello there!");
+// });
+
+router.get('/weather', (req, res, next) => {
+  let promise = weather.weatherInfo();
+  promise.then((data) => {
+    // log.info()
+    res.send(data);
+  });
 });
 
 /*

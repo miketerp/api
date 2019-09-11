@@ -8,21 +8,21 @@ const log = require('../utils/logger');
 
 var basicStocksInfo = () => {
   const deferred = Q.defer();
-  
+
   let url = 'https://api.worldtradingdata.com/api/v1/stock?symbol=' 
     + process.env.POSITIONS_SYMBOLS 
     + '&api_token=' 
     + process.env.WTD_API_KEY;
 
-  request.get(url, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
+  request.get(url, (err, res, body) => {
+    if (!err && res.statusCode == 200) {
       body = JSON.parse(body);
-      
+
       var obj = {};
       obj.data = [];
 
       var resultList = body.data;
-      for (var i = 0; i < resultList.length - 1; i++) {
+      for (var i = 0; i < resultList.length; i++) {
         obj.data.push({
           symbol: resultList[i].symbol,
           name: resultList[i].name,
@@ -35,7 +35,7 @@ var basicStocksInfo = () => {
           year_high: resultList[i]["52_week_high"],
           year_low: resultList[i]["52_week_low"],
           day_change: resultList[i].day_change,
-          day_change_percent: resultList[i].day_change_percent,
+          day_change_percent: resultList[i].change_pct,
           market_cap: (parseFloat(resultList[i].market_cap) / 1000000000) + ' B',
           volume: (parseFloat(resultList[i].volume) / 1000000) + ' M',
           avg_volume: function() {
@@ -51,7 +51,7 @@ var basicStocksInfo = () => {
           exchange: resultList[i].stock_exchange_short
         });
       }
-
+      
       deferred.resolve(obj);
     } else {
       deferred.reject();
@@ -67,8 +67,8 @@ var getForexInfo = () => {
   let url = 'https://api.worldtradingdata.com/api/v1/forex?base=CAD&api_token=' 
     + process.env.WTD_API_KEY;
 
-  request.get(url, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
+  request.get(url, (err, res, body) => {
+    if (!err && res.statusCode == 200) {
       body = JSON.parse(body);
       
       let obj = {
@@ -92,12 +92,24 @@ var getDailyInfo = () => {
   const deferred = Q.defer();
   
   let obj = Q.all([
-    data.getDataFromMongoDB()
-    // basicStocksInfo()
+    data.getDataFromMongoDB(),
+    getForexInfo(),
+    basicStocksInfo()
   ]);
 
   obj.then((resultsFromDB) => {
-    deferred.resolve(resultsFromDB);
+    // let resultObj = { ...resultsFromDB[0], ...resultsFromDB[1], ...resultsFromDB[2] }
+    let tmp = {
+      positions: resultsFromDB[0]["positions"],
+      currency: resultsFromDB[1]["currency"],
+      data: resultsFromDB[2]["data"]
+    };
+
+    deferred.resolve(tmp);
+  })
+  .catch((err) => {
+    log.info(err);
+    deferred.reject();
   });
 
   return deferred.promise;

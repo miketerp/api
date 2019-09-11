@@ -6,7 +6,6 @@ const app = express();
 const log = require('./utils/logger');
 const routes = require('./route');
 const cron = require('./cron');
-const Meetup = require('./modules/Meetup');
 
 app.use(express.static(__dirname + '/public'));
 
@@ -39,16 +38,16 @@ let server = app.listen(port, () => {
 });
 
 log.info("Starting CronJob");
-
 cron.dailyCloseNotify();
 
 app.use('/', routes);
 
 app.use((err, req, res) => {
-  log.warn(`Printing error stack: ${err.stack}`);
+  log.warn(`Printing error stack: ${err.stack}`); 
   res.status(500).send('5xx');
 });
 
-app.use((req, res) => {
+app.use((err, req, res) => {
+  log.warn(`Printing error stack: ${err.stack}`); 
   res.status(404).send('404');
 });

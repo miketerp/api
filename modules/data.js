@@ -26,7 +26,11 @@ const getDataFromMongoDB = () => {
       log.error(err);
       deferred.reject();
     } else {
-      deferred.resolve(docs);
+      var obj = {
+        positions: docs
+      };
+      
+      deferred.resolve(obj);
     }
   });
 
