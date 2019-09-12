@@ -6,7 +6,7 @@ const Q = require('q');
 const data = require('./data');
 const log = require('../utils/logger');
 
-var basicStocksInfo = () => {
+let basicStocksInfo = () => {
   const deferred = Q.defer();
 
   let url = 'https://api.worldtradingdata.com/api/v1/stock?symbol=' 
@@ -18,11 +18,11 @@ var basicStocksInfo = () => {
     if (!err && res.statusCode == 200) {
       body = JSON.parse(body);
 
-      var obj = {};
+      let obj = {};
       obj.data = [];
 
-      var resultList = body.data;
-      for (var i = 0; i < resultList.length; i++) {
+      let resultList = body.data;
+      for (let i = 0; i < resultList.length; i++) {
         obj.data.push({
           symbol: resultList[i].symbol,
           name: resultList[i].name,
@@ -39,7 +39,7 @@ var basicStocksInfo = () => {
           market_cap: (parseFloat(resultList[i].market_cap) / 1000000000) + ' B',
           volume: (parseFloat(resultList[i].volume) / 1000000) + ' M',
           avg_volume: function() {
-            var obj = resultList[i].volume_avg;
+            let obj = resultList[i].volume_avg;
 
             if (obj) {
               obj = (parseFloat(obj) / 1000000) + ' M'
@@ -61,7 +61,7 @@ var basicStocksInfo = () => {
   return deferred.promise;
 };
 
-var getForexInfo = () => {
+let getForexInfo = () => {
   const deferred = Q.defer();
 
   let url = 'https://api.worldtradingdata.com/api/v1/forex?base=CAD&api_token=' 
@@ -73,7 +73,6 @@ var getForexInfo = () => {
       
       let obj = {
         currency: {
-          KOR: body["data"]["KRW"],
           JAP: body["data"]["JPY"],
           USD: body["data"]["USD"]
         }
@@ -88,7 +87,7 @@ var getForexInfo = () => {
   return deferred.promise;
 };
 
-var getDailyInfo = () => {
+let getDailyInfo = () => {
   const deferred = Q.defer();
   
   let obj = Q.all([
@@ -99,9 +98,33 @@ var getDailyInfo = () => {
 
   obj.then((resultsFromDB) => {
     // let resultObj = { ...resultsFromDB[0], ...resultsFromDB[1], ...resultsFromDB[2] }
+
+    let hashObj = {};
+    resultsFromDB[0]["positions"].forEach((val) => {
+      hashObj[val.name] = {
+        qty: val.qty,
+        currency: val.currency,
+        price: val.price
+      };
+    });
+
+    resultsFromDB[2]["data"].forEach((val) => {
+      val.marketVal = val.price * hashObj[val.symbol].qty;
+      val.position = hashObj[val.symbol].price * hashObj[val.symbol].qty;
+      val.profits = function() {
+        let tmp;
+        
+        if (val.currency == 'USD') {
+          let curr = (1 / resultsFromDB[1]["currency"][val.currency]);
+          tmp = curr * parseInt((val.marketVal - val.position));
+        } else {
+          tmp = val.marketVal - val.position;
+        }
+        return tmp;
+      } ();
+    });
+
     let tmp = {
-      positions: resultsFromDB[0]["positions"],
-      currency: resultsFromDB[1]["currency"],
       data: resultsFromDB[2]["data"]
     };
 

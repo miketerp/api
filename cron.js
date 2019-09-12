@@ -3,7 +3,7 @@
 const CronJob = require('cron').CronJob;
 
 const finance = require('./modules/stocks');
-var notify = require('./modules/twilio');
+const notify = require('./modules/twilio');
 const log = require('./utils/logger');
 
 const dailyCloseNotify = () => {
@@ -11,30 +11,21 @@ const dailyCloseNotify = () => {
     (onComplete) => {
       log.info('Running smsStocksInfo()');
 
-      var promise = finance.getDailyInfo();
+      let promise = finance.getDailyInfo();
       promise.then((obj) => {
-        var hashObj = {};
-        var todaysPosition = "";
-        
-        obj.positions.forEach((val, key) => {
-          hashObj[val.name] = {
-            qty: val.qty,
-            currency: val.currency,
-            price: val.price
-          };
-        });
+        let todaysPosition = "";
+        let totalPL = 0;
 
-        obj.data.forEach(function(val, key) {
-          var marketVal = val.price * hashObj[val.symbol].qty;
-          var position = hashObj[val.symbol].price * hashObj[val.symbol].qty;
-        
+        obj.data.forEach((val) => {
           todaysPosition = todaysPosition
             + val.symbol + ": " + val.day_change_percent + "% (" + val.day_change + ")\n"
-            + 'P&L: ' + (((marketVal - position)/position) * 100).toFixed(2) // THIS IS A STRING
-            + '% (' + ((marketVal) - (position)).toFixed(2) + " " + hashObj[val.symbol].currency + ')\n\n';
+            + 'P&L: ' + (((val.marketVal - val.position)/val.position) * 100).toFixed(2) // THIS IS A STRING
+            + '% (' + (val.marketVal - val.position).toFixed(2) + " " + val.currency + ')\n\n';
+          
+          totalPL += val.profits;
         });
         
-        // todaysPosition = todaysPosition + "Total P&L: " + obj.totalPL;
+        todaysPosition = todaysPosition + "Total P&L: " + totalPL.toFixed(2);
         notify.pushSMS(todaysPosition);
 
         onComplete();

@@ -1,5 +1,7 @@
 "use strict";
 
+const log = require('../utils/logger');
+
 const pushSMS = (todaysPosition) => {
   const accountSid = process.env.TWLO_accountSid;
   const authToken = process.env.TWLO_authToken;
@@ -27,7 +29,7 @@ const pushSMS = (todaysPosition) => {
     });
     
   // switch to log.info
-  console.log("Done sending message!");
+  log.info("Done sending message!");
 };
 
 module.exports = {
