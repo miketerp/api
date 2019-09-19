@@ -1,11 +1,22 @@
 "use strict";
 
+// native dependencies
+const fs = require('fs');
 const express = require('express');
 const app = express();
 
+// custom modules
 const log = require('./utils/logger');
 const routes = require('./route');
 const cron = require('./cron');
+
+// initial setup
+let dir = './log';
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir);
+}
+
+let log_file = fs.createWriteStream(__dirname + '/log/route.log');
 
 app.use(express.static(__dirname + '/public'));
 
@@ -17,6 +28,8 @@ app.use((req, res, next) => {
 
   let logStream = `\n ${new Date()} | /${req.method.toString()} | ${ip} | ${req.path} | ${JSON.stringify(req.query)} | ${req.headers['user-agent']}`;
   log.info(logStream);
+  
+  log_file.write(logStream);
 
   //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
   //res.setHeader('Access-Control-Allow-Origin', '*');
