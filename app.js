@@ -14,9 +14,8 @@ app.use((req, res, next) => {
     || req.connection.remoteAddress 
     || req.socket.remoteAddress 
     || req.connection.socket.remoteAddress;
-  let queryParams = req.query;
 
-  let logStream = `\n ${new Date()} | /${req.method.toString()} | ${ip} | ${req.path}`;
+  let logStream = `\n ${new Date()} | /${req.method.toString()} | ${ip} | ${req.path} | ${JSON.stringify(req.query)} | ${req.headers['user-agent']}`;
   log.info(logStream);
 
   //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
@@ -38,7 +37,7 @@ let server = app.listen(port, () => {
 });
 
 log.info("Starting CronJob");
-cron.dailyCloseNotify();
+// cron.dailyCloseNotify();
 
 app.use('/', routes);
 

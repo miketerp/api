@@ -16,7 +16,7 @@ router.get('/', (req, res, next) => {
 // });
 
 router.get('/weather', (req, res, next) => {
-  let promise = weather.weatherInfo();
+  let promise = weather.currentWeatherInfo();
   promise.then((data) => {
     // log.info()
     res.send(data);

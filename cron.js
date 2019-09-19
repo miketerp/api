@@ -7,6 +7,7 @@ const notify = require('./modules/twilio');
 const log = require('./utils/logger');
 
 const dailyCloseNotify = () => {
+  // const job = new CronJob('*/15 * * * * *',
   const job = new CronJob('00 45 16 * * 1-5',
     (onComplete) => {
       log.info('Running smsStocksInfo()');
@@ -25,7 +26,7 @@ const dailyCloseNotify = () => {
           totalPL += val.profits;
         });
         
-        todaysPosition = todaysPosition + "Total P&L: " + totalPL.toFixed(2);
+        todaysPosition = todaysPosition + `Total P&L: $${totalPL.toFixed(2)} CAD`;
         notify.pushSMS(todaysPosition);
 
         onComplete();
