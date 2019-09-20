@@ -2,3 +2,8 @@ node_modules
 log
 .DS_Store
 .idea
+
+# sbt
+target/
+project/
+datasets/
