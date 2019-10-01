@@ -13,12 +13,11 @@ object ParseLogs {
     import sparkSession.implicits._
     sparkSession.sparkContext.setLogLevel("WARN")
     
-    // val logs = spark.read.textFile(args(0))
-    val logs = sparkSession.read.textFile("/Users/Kim/Desktop/github/api/log/route.log")
+    val logs = sparkSession.read.textFile(args(0))
     val trimmed = logs.map((x) => x.split("\\|"))
     
     val tableDF = trimmed.map(x => Logs(x(1),x(2),x(3),x(4),x(5))).toDF
-    tableDF.write.parquet("/Users/Kim/Desktop/github/api/datasets/web-traffic.parquet")
+    tableDF.write.parquet(args(1))
 
     sparkSession.stop()  
   }
