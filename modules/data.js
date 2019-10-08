@@ -44,7 +44,8 @@ const getDataFromMongoDB = () => {
 const insertDataToMongoDB = (queryParams) => {
   var deferred = Q.defer();
   
-  // make sure to have front-end parsing and model structure to prevent garbage being added in db
+  // make sure to have client-side validation and model structure to prevent garbage being added in db
+  // currently there's no measure to prevent spamming via POST, will add eventually
   _db.collection('users').insertOne(queryParams, (err, records) => {
     if (err) {
       log.error(err);
