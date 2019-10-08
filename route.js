@@ -5,6 +5,7 @@ const router = express.Router();
 
 const log = require('./utils/logger');
 const weather = require('./modules/weather');
+const data = require('./modules/data');
 
 router.get('/', (req, res, next) => {
   res.send('Hello World!');
@@ -15,30 +16,28 @@ router.get('/', (req, res, next) => {
 //   res.send("Hello there!");
 // });
 
-router.get('/weather', (req, res, next) => {
-  let promise = weather.currentWeatherInfo();
+router.post('/insert', (req, res) => {
+  let promise = data.insertDataToMongoDB(req.query);
   promise.then((data) => {
-    // log.info()
+    // log.info(data);
     res.send(data);
   });
 });
 
-/*
-router.get('/stocks', (req, res) => {
-  var promise = finance.stocks();
-  promise.then(function(obj) {
-    console.log('Sending MarketView JSON back...');
-    res.send(obj);
+router.get('/shorts', (req, res, next) => {
+  let promise = weather.currentWeatherInfo();
+  promise.then((data) => {
+    // log.info(data);
+    res.send(data);
   });
 });
 
-router.get('/historical', (req, res) => {
-  var promise = finance.historical();
-    promise.then(function(obj) {
-    console.log('Sending Historical JSON back...');
-    res.send(obj);
+router.get('/forecasts', (req, res, next) => {
+  let promise = weather.threeHourForecasts();
+  promise.then((data) => {
+    // log.info(data);
+    res.send(data);
   });
 });
-*/
 
 module.exports = router;

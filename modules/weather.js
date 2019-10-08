@@ -25,7 +25,7 @@ let currentWeatherInfo = () => {
     + regionID;
 
   request.get(url, (err, res, body) => {
-    if (!err &&  res.statusCode == 200) {
+    if (!err && res.statusCode == 200) {
       body = JSON.parse(body);
       
       transporter.sendMail({
@@ -70,7 +70,7 @@ let threeHourForecasts = () => {
     + regionID;
 
   request.get(url, (err, res, body) => {
-    if (!err &&  res.statusCode == 200) {
+    if (!err && res.statusCode == 200) {
       body = JSON.parse(body);
       
       // do stuff here
