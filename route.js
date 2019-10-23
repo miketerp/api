@@ -6,6 +6,7 @@ const router = express.Router();
 const log = require('./utils/logger');
 const weather = require('./modules/weather');
 const data = require('./modules/data');
+const elastic = require('./modules/elastic');
 
 router.get('/', (req, res, next) => {
   res.send('Hello World!');
@@ -15,6 +16,14 @@ router.get('/', (req, res, next) => {
 // router.get('/user/:id', (req, res, next) => {
 //   res.send("Hello there!");
 // });
+
+router.get('/elastic', (req, res) => {
+  let promise = elastic.queryElastic(req.query);
+  promise.then((data) => {
+    // log.info(data);
+    res.send(data);
+  });
+});
 
 router.post('/insert', (req, res) => {
   let promise = data.insertDataToMongoDB(req.query);
