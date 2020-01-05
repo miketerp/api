@@ -19,54 +19,62 @@ let queryElastic = (args) => {
   //   + '&id=' 
   //   + regionID;
 
+  let esObj = {
+    "query": {
+      "bool": {
+        "must": {
+          "multi_match": {
+            "query": args.query, 
+            "fields": [ 
+              "categories", 
+              "name"
+            ]
+          }
+        },
+        "filter": [{
+          "match": {
+            "state": state
+          }
+        }, {
+          "match": {
+            "city": city
+          }
+        }, {
+          "range": {
+            "stars": {
+              "gte": args.stars
+            }
+          }
+        }
+        // , {
+        //   "range": {
+        //     "review_count": {
+        //       "gte": 10
+        //     }
+        //   }
+        // }
+        ]
+      }
+    },
+    "size": 100
+  };
+  console.log(args.query);
+  if (args.query == "") {
+    esObj["query"]["bool"]["must"]= [{
+      "match_all": {}
+    }];
+  }
+
   request({
     uri: "http://localhost:9200/yelp-can/_search",
     headers: {
       "Content-Type": "application/json"
     },
     method: "POST",
-    body: JSON.stringify({
-      "query": {
-        "bool": {
-          "must": {
-            "multi_match": {
-              "query": args.query, 
-              "fields": [ 
-                "categories", 
-                "name"
-              ]
-            }
-          },
-          "filter": [{
-            "match": {
-              "state": state
-            }
-          }, {
-            "match": {
-              "city": city
-            }
-          }, {
-            "range": {
-              "stars": {
-                "gte": args.stars
-              }
-            }
-          }
-          // , {
-          //   "range": {
-          //     "review_count": {
-          //       "gte": 10
-          //     }
-          //   }
-          // }
-          ]
-        }
-      }
-    })
+    body: JSON.stringify(esObj)
   }, function(err, res, body) {
     if (!err && res.statusCode == 200) {
       body = JSON.parse(body);
-      // console.log(body.hits.hits);
       
       deferred.resolve(body.hits.hits);
     } else {
